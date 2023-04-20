@@ -1236,8 +1236,7 @@ class Lime(LimeBase):
         ]
         for tensor_ind in range(len(formatted_inp)):
             for single_feature in range(num_interp_features):
-                attr[tensor_ind] += (
-                    coefs[single_feature].item()
-                    * (feature_mask[tensor_ind] == single_feature).float()
-                )
+                attr[tensor_ind] += coefs[single_feature].item() * (
+                    feature_mask[tensor_ind] == single_feature
+                ).float().to(attr[0].device)
         return _format_output(is_inputs_tuple, tuple(attr))

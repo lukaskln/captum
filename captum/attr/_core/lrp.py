@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-
 import typing
 from collections import defaultdict
 from typing import Any, cast, List, Tuple, Union
 
 import torch.nn as nn
+import torchvision
 from captum._utils.common import (
     _format_output,
     _format_tensor_into_tuples,
@@ -20,11 +19,33 @@ from captum._utils.typing import Literal, TargetType, TensorOrTupleOfTensorsGene
 from captum.attr._utils.attribution import GradientAttribution
 from captum.attr._utils.common import _sum_rows
 from captum.attr._utils.custom_modules import Addition_Module
-from captum.attr._utils.lrp_rules import EpsilonRule, PropagationRule
+from captum.attr._utils.lrp_rules import EpsilonRule, PropagationRule, IdentityRule
 from captum.log import log_usage
 from torch import Tensor
 from torch.nn import Module
 from torch.utils.hooks import RemovableHandle
+import efficientnet_pytorch_3d
+
+from modules.components.deit_vit import (
+    Conv2d,
+    LayerNorm,
+    ReLU,
+    GELU,
+    Softmax,
+    Dropout,
+    MaxPool2d,
+    AdaptiveAvgPool2d,
+    AvgPool2d,
+    Add,
+    einsum,
+    IndexSelect,
+    Cat,
+    BatchNorm2d,
+    Linear,
+    Clone,
+    Sequential,
+    AddEye,
+)
 
 
 class LRP(GradientAttribution):
@@ -41,7 +62,7 @@ class LRP(GradientAttribution):
     Ancona et al. [https://openreview.net/forum?id=Sy21R9JAW].
     """
 
-    def __init__(self, model: Module) -> None:
+    def __init__(self, model: Module, epsilon=1e-6) -> None:
         r"""
         Args:
 
@@ -53,6 +74,7 @@ class LRP(GradientAttribution):
         """
         GradientAttribution.__init__(self, model)
         self.model = model
+        self.epsilon = epsilon
         self._check_rules()
 
     @property
@@ -285,7 +307,9 @@ class LRP(GradientAttribution):
                 pass
             elif type(layer) in SUPPORTED_LAYERS_WITH_RULES.keys():
                 layer.activations = {}  # type: ignore
-                layer.rule = SUPPORTED_LAYERS_WITH_RULES[type(layer)]()  # type: ignore
+                layer.rule = SUPPORTED_LAYERS_WITH_RULES[type(layer)](
+                    epsilon=self.epsilon
+                )  # type: ignore
                 layer.rule.relevance_input = defaultdict(list)  # type: ignore
                 layer.rule.relevance_output = {}  # type: ignore
             elif type(layer) in SUPPORTED_NON_LINEAR_LAYERS:
@@ -415,11 +439,50 @@ SUPPORTED_LAYERS_WITH_RULES = {
     nn.MaxPool2d: EpsilonRule,
     nn.MaxPool3d: EpsilonRule,
     nn.Conv2d: EpsilonRule,
+    nn.Conv3d: EpsilonRule,
+    torchvision.models.video.resnet.Conv3DSimple: EpsilonRule,
+    Conv2d: EpsilonRule,
+    LayerNorm: EpsilonRule,
+    MaxPool2d: EpsilonRule,
+    AdaptiveAvgPool2d: EpsilonRule,
+    nn.AdaptiveAvgPool3d: EpsilonRule,
+    AvgPool2d: EpsilonRule,
+    IndexSelect: EpsilonRule,
+    Cat: EpsilonRule,
+    BatchNorm2d: EpsilonRule,
+    Linear: EpsilonRule,
+    Sequential: EpsilonRule,
+    AddEye: EpsilonRule,
     nn.AvgPool2d: EpsilonRule,
     nn.AdaptiveAvgPool2d: EpsilonRule,
+    nn.ZeroPad2d: EpsilonRule,
     nn.Linear: EpsilonRule,
     nn.BatchNorm2d: EpsilonRule,
+    nn.BatchNorm3d: EpsilonRule,
+    nn.Flatten: EpsilonRule,
+    nn.LayerNorm: EpsilonRule,
+    torchvision.ops.misc.Permute: EpsilonRule,
+    nn.modules.linear.NonDynamicallyQuantizableLinear: EpsilonRule,
+    torchvision.models.convnext.LayerNorm2d: EpsilonRule,
+    nn.modules.linear.Identity: EpsilonRule,
+    efficientnet_pytorch_3d.utils.Identity: EpsilonRule,
     Addition_Module: EpsilonRule,
+    efficientnet_pytorch_3d.utils.MemoryEfficientSwish: EpsilonRule,
 }
 
-SUPPORTED_NON_LINEAR_LAYERS = [nn.ReLU, nn.Dropout, nn.Tanh]
+SUPPORTED_NON_LINEAR_LAYERS = [
+    nn.Tanh,
+    ReLU,
+    Add,
+    Clone,
+    GELU,
+    einsum,
+    Softmax,
+    Dropout,
+    nn.ReLU,
+    nn.GELU,
+    nn.SiLU,
+    nn.Sigmoid,
+    nn.Dropout,
+    torchvision.ops.StochasticDepth,
+]

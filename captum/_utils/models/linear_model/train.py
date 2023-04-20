@@ -126,6 +126,7 @@ def sgd_train_linear_model(
     model._construct_model_params(
         in_features=x.shape[1],
         out_features=y.shape[1] if len(y.shape) == 2 else 1,
+        device=x.device,
         **construct_kwargs,
     )
     model.train()
@@ -143,6 +144,8 @@ def sgd_train_linear_model(
 
             if model.linear.bias is not None:
                 model.linear.bias.zero_()
+
+    model.linear.to(device)
 
     with torch.enable_grad():
         optim = torch.optim.SGD(model.parameters(), lr=initial_lr)

@@ -41,6 +41,7 @@ class LinearModel(nn.Module, Model):
         self,
         in_features: Optional[int] = None,
         out_features: Optional[int] = None,
+        device: Optional[int] = None,
         norm_type: Optional[str] = None,
         affine_norm: bool = False,
         bias: bool = True,
@@ -115,6 +116,8 @@ class LinearModel(nn.Module, Model):
 
         if classes is not None:
             self.linear.classes = classes
+
+        self.linear.to(device)
 
     def fit(self, train_data: DataLoader, **kwargs):
         r"""
