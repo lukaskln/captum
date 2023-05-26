@@ -438,6 +438,7 @@ SUPPORTED_LAYERS_WITH_RULES = {
     nn.MaxPool1d: EpsilonRule,
     nn.MaxPool2d: EpsilonRule,
     nn.MaxPool3d: EpsilonRule,
+    nn.Conv1d: EpsilonRule,
     nn.Conv2d: EpsilonRule,
     nn.Conv3d: EpsilonRule,
     torchvision.models.video.resnet.Conv3DSimple: EpsilonRule,
@@ -455,8 +456,10 @@ SUPPORTED_LAYERS_WITH_RULES = {
     AddEye: EpsilonRule,
     nn.AvgPool2d: EpsilonRule,
     nn.AdaptiveAvgPool2d: EpsilonRule,
+    nn.AdaptiveMaxPool2d: EpsilonRule,
     nn.ZeroPad2d: EpsilonRule,
     nn.Linear: EpsilonRule,
+    nn.BatchNorm1d: EpsilonRule,
     nn.BatchNorm2d: EpsilonRule,
     nn.BatchNorm3d: EpsilonRule,
     nn.Flatten: EpsilonRule,
@@ -472,6 +475,7 @@ SUPPORTED_LAYERS_WITH_RULES = {
 
 SUPPORTED_NON_LINEAR_LAYERS = [
     nn.Tanh,
+    nn.LeakyReLU,
     ReLU,
     Add,
     Clone,
@@ -484,5 +488,6 @@ SUPPORTED_NON_LINEAR_LAYERS = [
     nn.SiLU,
     nn.Sigmoid,
     nn.Dropout,
+    nn.LogSoftmax,
     torchvision.ops.StochasticDepth,
 ]

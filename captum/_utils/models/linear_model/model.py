@@ -127,6 +127,7 @@ class LinearModel(nn.Module, Model):
             self,
             dataloader=train_data,
             construct_kwargs=self.construct_kwargs,
+            alpha = self.alpha,
             **kwargs,
         )
 
@@ -159,7 +160,7 @@ class LinearModel(nn.Module, Model):
 
 
 class SGDLinearModel(LinearModel):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, alpha=1.0, **kwargs) -> None:
         r"""
         Factory class. Construct a a `LinearModel` with the
         `sgd_train_linear_model` as the train method
@@ -172,6 +173,7 @@ class SGDLinearModel(LinearModel):
         """
         # avoid cycles
         from captum._utils.models.linear_model.train import sgd_train_linear_model
+        self.alpha= alpha
 
         super().__init__(train_fn=sgd_train_linear_model, **kwargs)
 
@@ -232,7 +234,7 @@ class SGDLinearRegression(SGDLinearModel):
 
 
 class SkLearnLinearModel(LinearModel):
-    def __init__(self, sklearn_module: str, **kwargs) -> None:
+    def __init__(self, sklearn_module: str,alpha=1.0, **kwargs) -> None:
         r"""
         Factory class to construct a `LinearModel` with sklearn training method.
 
@@ -257,6 +259,7 @@ class SkLearnLinearModel(LinearModel):
         """
         # avoid cycles
         from captum._utils.models.linear_model.train import sklearn_train_linear_model
+        self.alpha = alpha
 
         super().__init__(train_fn=sklearn_train_linear_model, **kwargs)
 

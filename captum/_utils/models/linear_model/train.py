@@ -153,6 +153,8 @@ def sgd_train_linear_model(
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optim, factor=0.5, patience=patience, threshold=threshold
             )
+        else:
+            scheduler = None
 
         t1 = time.time()
         epoch = 0
@@ -245,6 +247,7 @@ def sklearn_train_linear_model(
     construct_kwargs: Dict[str, Any],
     sklearn_trainer: str = "Lasso",
     norm_input: bool = False,
+    alpha = None,
     **fit_kwargs,
 ):
     r"""
