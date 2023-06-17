@@ -19,8 +19,14 @@ from captum._utils.typing import Literal, TargetType, TensorOrTupleOfTensorsGene
 from captum.attr._utils.attribution import GradientAttribution
 from captum.attr._utils.common import _sum_rows
 from captum.attr._utils.custom_modules import Addition_Module
-from captum.attr._utils.lrp_rules import EpsilonRule, PropagationRule, IdentityRule
+from captum.attr._utils.lrp_rules import EpsilonRule, PropagationRule, IdentityRule, GammaRule, Alpha1_Beta0_Rule
 from captum.log import log_usage
+from torchvision.models.video.resnet import Conv3DSimple
+from torchvision.ops import StochasticDepth
+from torchvision.ops.misc import Permute
+
+from efficientnet_pytorch_3d.utils import Identity, MemoryEfficientSwish
+
 from torch import Tensor
 from torch.nn import Module
 from torch.utils.hooks import RemovableHandle
@@ -62,7 +68,7 @@ class LRP(GradientAttribution):
     Ancona et al. [https://openreview.net/forum?id=Sy21R9JAW].
     """
 
-    def __init__(self, model: Module, epsilon=1e-6) -> None:
+    def __init__(self, model: Module, epsilon=1e-6, gamma = 0.25) -> None:
         r"""
         Args:
 
@@ -75,6 +81,7 @@ class LRP(GradientAttribution):
         GradientAttribution.__init__(self, model)
         self.model = model
         self.epsilon = epsilon
+        self.gamma = gamma
         self._check_rules()
 
     @property
@@ -308,7 +315,7 @@ class LRP(GradientAttribution):
             elif type(layer) in SUPPORTED_LAYERS_WITH_RULES.keys():
                 layer.activations = {}  # type: ignore
                 layer.rule = SUPPORTED_LAYERS_WITH_RULES[type(layer)](
-                    epsilon=self.epsilon
+                    epsilon=self.epsilon, gamma=self.gamma
                 )  # type: ignore
                 layer.rule.relevance_input = defaultdict(list)  # type: ignore
                 layer.rule.relevance_output = {}  # type: ignore
@@ -441,7 +448,7 @@ SUPPORTED_LAYERS_WITH_RULES = {
     nn.Conv1d: EpsilonRule,
     nn.Conv2d: EpsilonRule,
     nn.Conv3d: EpsilonRule,
-    torchvision.models.video.resnet.Conv3DSimple: EpsilonRule,
+    Conv3DSimple: EpsilonRule,
     Conv2d: EpsilonRule,
     LayerNorm: EpsilonRule,
     MaxPool2d: EpsilonRule,
@@ -451,26 +458,25 @@ SUPPORTED_LAYERS_WITH_RULES = {
     IndexSelect: EpsilonRule,
     Cat: EpsilonRule,
     BatchNorm2d: EpsilonRule,
-    Linear: EpsilonRule,
+    Linear: GammaRule,
     Sequential: EpsilonRule,
     AddEye: EpsilonRule,
     nn.AvgPool2d: EpsilonRule,
     nn.AdaptiveAvgPool2d: EpsilonRule,
     nn.AdaptiveMaxPool2d: EpsilonRule,
     nn.ZeroPad2d: EpsilonRule,
-    nn.Linear: EpsilonRule,
+    nn.Linear: GammaRule,
     nn.BatchNorm1d: EpsilonRule,
     nn.BatchNorm2d: EpsilonRule,
     nn.BatchNorm3d: EpsilonRule,
-    nn.Flatten: EpsilonRule,
+    nn.Flatten: GammaRule,
     nn.LayerNorm: EpsilonRule,
-    torchvision.ops.misc.Permute: EpsilonRule,
-    nn.modules.linear.NonDynamicallyQuantizableLinear: EpsilonRule,
-    torchvision.models.convnext.LayerNorm2d: EpsilonRule,
-    nn.modules.linear.Identity: EpsilonRule,
-    efficientnet_pytorch_3d.utils.Identity: EpsilonRule,
+    Permute: EpsilonRule,
+    nn.modules.linear.NonDynamicallyQuantizableLinear: GammaRule,
+    nn.modules.linear.Identity: GammaRule,
+    Identity: EpsilonRule,
     Addition_Module: EpsilonRule,
-    efficientnet_pytorch_3d.utils.MemoryEfficientSwish: EpsilonRule,
+    MemoryEfficientSwish: EpsilonRule,
 }
 
 SUPPORTED_NON_LINEAR_LAYERS = [
@@ -489,5 +495,5 @@ SUPPORTED_NON_LINEAR_LAYERS = [
     nn.Sigmoid,
     nn.Dropout,
     nn.LogSoftmax,
-    torchvision.ops.StochasticDepth,
+    StochasticDepth,
 ]
