@@ -19,7 +19,13 @@ from captum._utils.typing import Literal, TargetType, TensorOrTupleOfTensorsGene
 from captum.attr._utils.attribution import GradientAttribution
 from captum.attr._utils.common import _sum_rows
 from captum.attr._utils.custom_modules import Addition_Module
-from captum.attr._utils.lrp_rules import EpsilonRule, PropagationRule, IdentityRule, GammaRule, Alpha1_Beta0_Rule
+from captum.attr._utils.lrp_rules import (
+    EpsilonRule,
+    PropagationRule,
+    IdentityRule,
+    GammaRule,
+    Alpha1_Beta0_Rule,
+)
 from captum.log import log_usage
 from torchvision.models.video.resnet import Conv3DSimple
 from torchvision.ops import StochasticDepth
@@ -68,7 +74,7 @@ class LRP(GradientAttribution):
     Ancona et al. [https://openreview.net/forum?id=Sy21R9JAW].
     """
 
-    def __init__(self, model: Module, epsilon=1e-6, gamma = 0.25) -> None:
+    def __init__(self, model: Module, epsilon=1e-6, gamma=0.25) -> None:
         r"""
         Args:
 
