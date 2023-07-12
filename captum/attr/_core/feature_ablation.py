@@ -416,6 +416,10 @@ class FeatureAblation(PerturbationAttribution):
             if show_progress:
                 attr_progress.close()
 
+            total_attrib = [
+                torch.max(attr, torch.tensor([0.0])) for attr in total_attrib
+            ]
+
             # Divide total attributions by counts and return formatted attributions
             if self.use_weights:
                 attrib = tuple(

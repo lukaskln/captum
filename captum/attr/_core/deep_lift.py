@@ -346,6 +346,10 @@ class DeepLift(GradientAttribution):
             # Even if any error is raised, remove all hooks before raising
             self._remove_hooks(main_model_hooks)
 
+        attributions = tuple(
+            torch.max(gradient, torch.tensor([0.0])) for gradient in attributions
+        )
+
         undo_gradient_requirements(inputs, gradient_mask)
         return _compute_conv_delta_and_format_attrs(
             self,

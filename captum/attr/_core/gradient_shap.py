@@ -279,6 +279,8 @@ class GradientShap(GradientAttribution):
             return_convergence_delta=return_convergence_delta,
         )
 
+        attributions = torch.max(attributions, torch.tensor([0.0]))
+
         return attributions
 
     def has_convergence_delta(self) -> bool:
@@ -377,6 +379,10 @@ class InputBaselineXGradient(GradientAttribution):
             )
         else:
             attributions = grads
+
+        attributions = tuple(
+            torch.max(gradient, torch.tensor([0.0])) for gradient in attributions
+        )
 
         return _compute_conv_delta_and_format_attrs(
             self,

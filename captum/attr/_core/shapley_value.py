@@ -393,6 +393,8 @@ class ShapleyValueSampling(PerturbationAttribution):
 
             # Divide total attributions by number of random permutations and return
             # formatted attributions.
+            tensor_attrib_total = torch.max(tensor_attrib_total,torch.tensor([0.]))
+
             attrib = tuple(
                 tensor_attrib_total / iter_count for tensor_attrib_total in total_attrib
             )

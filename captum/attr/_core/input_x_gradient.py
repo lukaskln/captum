@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from typing import Any, Callable
+import torch
 
 from captum._utils.common import _format_output, _format_tensor_into_tuples, _is_tuple
 from captum._utils.gradient import (
@@ -120,6 +121,10 @@ class InputXGradient(GradientAttribution):
 
         attributions = tuple(
             input * gradient for input, gradient in zip(inputs, gradients)
+        )
+
+        attributions = tuple(
+            torch.max(gradient, torch.tensor([0.0])) for gradient in attributions
         )
 
         undo_gradient_requirements(inputs, gradient_mask)

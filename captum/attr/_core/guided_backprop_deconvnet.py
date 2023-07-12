@@ -75,6 +75,10 @@ class ModifiedReluGradientAttribution(GradientAttribution):
             self._remove_hooks()
 
         undo_gradient_requirements(inputs, gradient_mask)
+
+        gradients = tuple(
+            torch.max(gradient, torch.tensor([0.0])) for gradient in gradients
+        )
         return _format_output(is_inputs_tuple, gradients)
 
     def _register_hooks(self, module: Module):

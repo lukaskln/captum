@@ -2,6 +2,7 @@ import typing
 from collections import defaultdict
 from typing import Any, cast, List, Tuple, Union
 
+import torch
 import torch.nn as nn
 import torchvision
 from captum._utils.common import (
@@ -253,6 +254,10 @@ class LRP(GradientAttribution):
             self._restore_model()
 
         undo_gradient_requirements(inputs, gradient_mask)
+
+        relevances = tuple(
+            torch.max(relevance, torch.tensor([0.0])) for relevance in relevances
+        )
 
         if return_convergence_delta:
             return (

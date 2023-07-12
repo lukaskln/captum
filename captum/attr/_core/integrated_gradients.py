@@ -292,6 +292,10 @@ class IntegratedGradients(GradientAttribution):
                 method=method,
             )
 
+        attributions = tuple(
+            torch.max(gradient, torch.tensor([0.0])) for gradient in attributions
+        )
+
         if return_convergence_delta:
             start_point, end_point = baselines, inputs
             # computes approximation error based on the completeness axiom
