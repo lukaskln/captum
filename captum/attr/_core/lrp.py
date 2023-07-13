@@ -256,7 +256,7 @@ class LRP(GradientAttribution):
         undo_gradient_requirements(inputs, gradient_mask)
 
         relevances = tuple(
-            torch.max(relevance, torch.tensor([0.0])) for relevance in relevances
+            torch.max(relevance, torch.tensor([0.0]).to(relevance.device)) for relevance in relevances
         )
 
         if return_convergence_delta:

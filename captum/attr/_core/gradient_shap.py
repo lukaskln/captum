@@ -279,7 +279,7 @@ class GradientShap(GradientAttribution):
             return_convergence_delta=return_convergence_delta,
         )
 
-        attributions = torch.max(attributions, torch.tensor([0.0]))
+        attributions = torch.max(attributions, torch.tensor([0.0]).to(attributions.device))
 
         return attributions
 

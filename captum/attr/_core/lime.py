@@ -527,7 +527,7 @@ class LimeBase(PerturbationAttribution):
                 combined_interp_inps, combined_outputs, combined_sim
             )
             self.interpretable_model.fit(DataLoader(dataset, batch_size=batch_count))
-            return torch.max(self.interpretable_model.representation(),torch.tensor([0.0]))
+            return torch.max(self.interpretable_model.representation(),torch.tensor([0.0]).to(device))
 
     def _evaluate_batch(
         self,
@@ -1189,7 +1189,7 @@ class Lime(LimeBase):
             **kwargs,
         )
 
-        coefs = torch.max(coefs,torch.tensor([0.]))
+        coefs = torch.max(coefs,torch.tensor([0.]).to(coefs.device))
 
         if return_input_shape:
             return self._convert_output_shape(

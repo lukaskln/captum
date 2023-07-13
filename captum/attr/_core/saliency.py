@@ -135,7 +135,7 @@ class Saliency(GradientAttribution):
             attributions = tuple(torch.abs(gradient) for gradient in gradients)
         else:
             attributions = tuple(
-                torch.max(gradient, torch.tensor([0.0])) for gradient in gradients
+                torch.max(gradient, torch.tensor([0.0]).to(gradient.device)) for gradient in gradients
             )
 
         undo_gradient_requirements(inputs, gradient_mask)

@@ -124,7 +124,7 @@ class InputXGradient(GradientAttribution):
         )
 
         attributions = tuple(
-            torch.max(gradient, torch.tensor([0.0])) for gradient in attributions
+            torch.max(gradient, torch.tensor([0.0]).to(gradient.device)) for gradient in attributions
         )
 
         undo_gradient_requirements(inputs, gradient_mask)
