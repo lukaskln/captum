@@ -527,7 +527,8 @@ class LimeBase(PerturbationAttribution):
                 combined_interp_inps, combined_outputs, combined_sim
             )
             self.interpretable_model.fit(DataLoader(dataset, batch_size=batch_count))
-            return torch.max(self.interpretable_model.representation(),torch.tensor([0.0]).to(device))
+            rep = self.interpretable_model.representation()
+            return torch.max(rep,torch.tensor([0.0]).to(rep.device))
 
     def _evaluate_batch(
         self,
