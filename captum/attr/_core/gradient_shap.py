@@ -381,7 +381,7 @@ class InputBaselineXGradient(GradientAttribution):
             attributions = grads
 
         attributions = tuple(
-            torch.max(gradient, torch.tensor([0.0])) for gradient in attributions
+            torch.max(gradient, torch.tensor([0.0]).to(gradient.device)) for gradient in attributions
         )
 
         return _compute_conv_delta_and_format_attrs(
