@@ -347,7 +347,7 @@ class DeepLift(GradientAttribution):
             self._remove_hooks(main_model_hooks)
 
         attributions = tuple(
-            torch.max(gradient, torch.tensor([0.0]).to(gradients.device)) for gradient in attributions
+            torch.max(gradient, torch.tensor([0.0]).to(gradient.device)) for gradient in attributions
         )
 
         undo_gradient_requirements(inputs, gradient_mask)
