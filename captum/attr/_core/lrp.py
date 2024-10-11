@@ -39,7 +39,7 @@ from torch.nn import Module
 from torch.utils.hooks import RemovableHandle
 import efficientnet_pytorch_3d
 
-from modules.components.deit_vit import (
+from src.modules.components.deit_vit import (
     Conv2d,
     LayerNorm,
     ReLU,
